@@ -258,7 +258,7 @@ sub getServerLogoutURL {
     my $self = shift;
     my $service = shift;
     
-    return $self->{'url'}.$self->{'logoutPath'}.'?service='.&_escape_chars($service).'&gateway=1';
+    return $self->{'url'}.$self->{'logoutPath'}.'?url='.&_escape_chars($service);
 }
 
 sub getServerServiceValidateURL {

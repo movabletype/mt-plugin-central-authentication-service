@@ -3,13 +3,20 @@ package MT::Auth::CAS;
 use strict;
 use warnings;
 use base qw( MT::Auth::MT );
+use MT::Util qw( encode_url );
 use AuthCAS;
 
 sub can_recover_password { 0 }
 sub is_profile_needed { 1 }
 sub password_exists { 0 }
-sub delegate_auth { 0 }
 sub can_logout { 1 }
+
+sub delegate_auth {
+    my $class = shift;
+    my $app = MT->instance;
+    return 1 if 'logout' eq $app->mode;
+    return 0;
+}
 
 sub sanity_check {
     my $class = shift;
@@ -20,17 +27,21 @@ sub sanity_check {
 sub fetch_credentials { 
     my $class = shift; 
     my ( $ctx ) = @_; 
+    my $app = $ctx->{app} || MT->instance(); 
+    my $service_url = $ctx->{service_url} || _service_url( $app );
+
     $ctx = $class->session_credentials(@_); 
     if (!defined $ctx) { 
-        my $app = $ctx->{app} || MT->instance(); 
+        # FIXME: session_js should not be the only mode
+        return undef if 'session_js' eq $app->mode;
         if ( my $st = $app->param('ticket') ) {
-            $ctx = { app => $app, session_ticket => $st };
+            $ctx = { app => $app, session_ticket => $st, service_url => $service_url };
         }
         else {
             my $cas = new AuthCAS(
                 casUrl => $app->config->AuthLoginURL,
             );
-            my $login_url = $cas->getServerLoginURL($app->base . $app->mt_uri);
+            my $login_url = $cas->getServerLoginURL( encode_url( $service_url ) );
             $app->redirect($login_url); 
             return undef; 
         }
@@ -45,6 +56,7 @@ sub validate_credentials {
     my $app = $ctx->{app};
     my $st  = delete $ctx->{session_ticket};
     my $session_id = $ctx->{session_id};
+    my $service_url = $ctx->{service_url} || _service_url( $app );
     unless ( $st || $session_id ) {
         my $q = $app->param;
         $st = $q->param('ticket');
@@ -54,9 +66,10 @@ sub validate_credentials {
         my $cas = new AuthCAS(
             casUrl => $app->config->AuthLoginURL,
         );
-        my $user = $cas->validateST($app->base . $app->mt_uri, $st);
+        my $service_url = _service_url( $app );
+        my $user = $cas->validateST( encode_url($service_url), $st);
         unless ( $user ) {
-            my $login_url = $cas->getServerLoginURL($app->base . $app->mt_uri);
+            my $login_url = $cas->getServerLoginURL( encode_url( $service_url ) );
             $app->redirect($login_url); 
             return MT::Auth::REDIRECT_NEEDED();
         }
@@ -89,14 +102,17 @@ sub validate_credentials {
 }
 
 sub invalidate_credentials { 
-    my $auth = shift; 
+    my $class = shift; 
     my ( $ctx ) = @_; 
-    $auth->SUPER::invalidate_credentials(@_); 
-    my $app = $ctx->{app}; 
+    my $app = $ctx->{app} || MT->instance(); 
+    my $service_url = $ctx->{service_url} || _service_url( $app );
+    my $result = $class->SUPER::invalidate_credentials(@_); 
+    # FIXME: handle_sign_in should not be the only mode
+    return $result if ( 'handle_sign_in' eq $app->mode ) && $app->param('logout');
     my $cas = new AuthCAS(
         casUrl => $app->config->AuthLoginURL,
     );
-    my $login_url = $cas->getServerLoginURL($app->base . $app->mt_uri);
+    my $login_url = $cas->getServerLogoutURL( encode_url( $service_url ) );
     $app->redirect($login_url);
     return undef;
 } 
@@ -118,6 +134,17 @@ sub login_form {
     my $class = shift;
     my ( $app ) = @_;
     return q();
+}
+
+sub _service_url {
+    my ( $app ) = @_;
+    my %args = $app->param_hash;
+    delete $args{__mode};
+    delete $args{ticket};
+    return $app->base . $app->uri(
+        mode => $app->mode,
+        %args ? ( args => \%args ) : ()
+    );
 }
 
 1;

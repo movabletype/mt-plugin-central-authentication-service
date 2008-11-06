@@ -1,3 +1,13 @@
 id: mt_cas
 name: MT_CAS
 version: 1.0
+
+tags:
+    function:
+        SignInLink: $mt_cas::MT_CAS::Tags::_hdlr_sign_in_link
+
+applications:
+    comments:
+        methods:
+            cas_login: $mt_cas::MT_CAS::App::Comments::cas_login
+            cas_do_login: $mt_cas::MT_CAS::App::Comments::cas_do_login
