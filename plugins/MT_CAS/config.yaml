@@ -11,3 +11,7 @@ applications:
         methods:
             cas_login: $mt_cas::MT_CAS::App::Comments::cas_login
             cas_do_login: $mt_cas::MT_CAS::App::Comments::cas_do_login
+    community:
+        methods:
+            cas_login: $mt_cas::MT_CAS::App::Comments::cas_login
+            cas_do_login: $mt_cas::MT_CAS::App::Comments::cas_do_login

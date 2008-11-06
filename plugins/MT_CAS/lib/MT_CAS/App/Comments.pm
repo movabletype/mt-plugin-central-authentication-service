@@ -37,13 +37,13 @@ sub cas_do_login {
             $app->param( 'name', $username );
             if ( MT::Auth::NEW_USER() == $result ) {
                 $commenter = $app->_create_commenter_assign_role( $blog_id );
-                return $app->redirect_to_target unless $commenter;
+                return _redirect_to_target( $app ) unless $commenter;
             }
         }
         MT::Auth->new_login( $app, $commenter );
         if ( $app->_check_commenter_author( $commenter, $blog_id ) ) {
             $app->make_commenter_session($commenter);
-            return $app->redirect_to_target;
+            return _redirect_to_target( $app );
         }
         $error   = $app->translate("Permission denied.");
         $message = $app->translate(
@@ -71,7 +71,7 @@ sub cas_do_login {
     );
     $ctx->{app} ||= $app;
     MT::Auth->invalidate_credentials($ctx);
-    return $app->redirect_to_target;
+    return _redirect_to_target( $app );
 }
 
 sub _service_url {
@@ -86,6 +86,12 @@ sub _service_url {
             $q->param('entry_id') ? ( entry_id => $q->param('entry_id') ) : ()
         }
     );
+}
+
+sub _redirect_to_target {
+    my ( $app ) = @_;
+    require MT::App::Comments;
+    return MT::App::Comments::redirect_to_target( $app );
 }
 
 1;
