@@ -258,7 +258,7 @@ sub getServerLogoutURL {
     my $self = shift;
     my $service = shift;
     
-    return $self->{'url'}.$self->{'logoutPath'}.'?url='.&_escape_chars($service);
+    return $self->{'url'}.$self->{'logoutPath'}.'?service='.&_escape_chars($service).'&gateway=1';
 }
 
 sub getServerServiceValidateURL {
@@ -310,7 +310,7 @@ sub validateST {
     }
 
     my $user = $xml->{'cas:serviceResponse'}[0]{'cas:authenticationSuccess'}[0]{'cas:user'}[0];
-
+    
     ## If in Proxy mode, also retreave a PGT
     if ($self->{'proxy'}) {
 	my $pgtIou;
@@ -318,26 +318,26 @@ sub validateST {
 	    $pgtIou = $xml->{'cas:serviceResponse'}[0]{'cas:authenticationSuccess'}[0]{'cas:proxyGrantingTicket'}[0];
 	}
 	
-    #unless (defined $self->{'pgtFile'}) {
-	#    $errors = sprintf "pgtFile not defined\n";
-	#    return undef;
-	#}
+	unless (defined $self->{'pgtFile'}) {
+	    $errors = sprintf "pgtFile not defined\n";
+	    return undef;
+	}
 
-	### Check stored PGT
-	#unless (open STORE, $self->{'pgtFile'}) {
-	#    $errors = sprintf "Unable to read %s\n", $self->{'pgtFile'};
-	#    return undef;
-	#}
-	#
-	#my $pgtId;
-	#while (<STORE>) {
-	#    if (/^$pgtIou\s+(.+)$/) {
-	#	$pgtId = $1;
-	#	last;
-	#    }
-	#}
-	#
-	#$self->{'pgtId'} = $pgtId;
+	## Check stored PGT
+	unless (open STORE, $self->{'pgtFile'}) {
+	    $errors = sprintf "Unable to read %s\n", $self->{'pgtFile'};
+	    return undef;
+	}
+	
+	my $pgtId;
+	while (<STORE>) {
+	    if (/^$pgtIou\s+(.+)$/) {
+		$pgtId = $1;
+		last;
+	    }
+	}
+	
+	$self->{'pgtId'} = $pgtId;
     }
 
     return ($user);
@@ -366,20 +366,8 @@ sub validatePT {
     return ($user, @proxies);
 }
 
-sub callCAS {
-    my $self = shift;
-    my $url = shift;
-    my $ua = MT->new_ua;
-    my $resp = $ua->get($url);
-    return unless $resp->is_success();
-    warn $resp->content;
-    my $res = &_parse_xml($resp->content);
-    warn Data::Dumper::Dumper($res);
-    $res;
-}
-
 ## Access a CAS URL and parses received XML
-sub _callCAS {
+sub callCAS {
     my $self = shift;
     my $url = shift;
 
