@@ -141,10 +141,10 @@ sub _service_url {
     my %args = $app->param_hash;
     delete $args{__mode};
     delete $args{ticket};
-    return $app->base . $app->uri(
-        mode => $app->mode,
-        %args ? ( args => \%args ) : ()
-    );
+    my %params = 'logout' eq $app->mode
+      ? ()
+      : ( mode => $app->mode, %args ? ( args => \%args ) : () );
+    return $app->base . $app->uri( %params );
 }
 
 1;
