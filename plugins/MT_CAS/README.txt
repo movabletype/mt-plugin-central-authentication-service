@@ -1,3 +1,4 @@
+= Configuration =
 You need to specify the following three configuration directives in your mt-config.cgi.
 
 ; AuthenticationModule
@@ -18,3 +19,8 @@ You need to specify the following three configuration directives in your mt-conf
  AuthenticationModule CAS
  AuthLoginURL http://localhost:8080/cas
  AuthLogoutURL http://localhost:8080/cas/logout
+
+= External Library =
+The plugin contains modified version of AuthCAS module in its extlib directory, which was originally obtained from the PerlCAS project [1].  However it is modified so it works on the environment on which author of the plugin implemented the plugin.  You may want to use the original version of AuthCAS module particularly if you want to use SSL connection to CAS.
+
+[1] http://sourcesup.cru.fr/projects/perlcas// 
