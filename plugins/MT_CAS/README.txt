@@ -19,14 +19,20 @@ You need to specify the following three configuration directives in your mt-conf
  AuthenticationModule CAS
  AuthLoginURL http://localhost:8080/cas
  AuthLogoutURL http://localhost:8080/cas/logout
+ 
+ # Or if you use SSL
+ #AuthLoginURL https://localhost:8443/cas
+ #AuthLogoutURL https://localhost:8443/cas/logout
 
-= External Library =
-The plugin contains modified version of AuthCAS module in its extlib directory, which was originally obtained from the PerlCAS project [1].  However it is modified so it works on the environment on which author of the plugin implemented the plugin.  You may want to use the original version of AuthCAS module particularly if you want to use SSL connection to CAS.
+= Editing JavaScript Template =
+The consumer side of the login process works as below.  In order for the browser to navigate to the correct address, users may need to edit JavaScript (or GlobalJavaScript, depending on what template sets they use) template to specify the login URL of MT used in the step 2.
 
-[1] http://sourcesup.cru.fr/projects/perlcas// 
+# User clicks "Sign In" link on the blog entry to comment.
+# MT accepts the request first, and redirect to CAS login URL.
+# User logs in to CAS.
+# CAS redirects back to the original blog entry.
 
-= Community Templates =
-If you use the plugin with Community Blog or Community Forum template sets, or to be more precise, if you use the plugin with GlobalJavascript global template, You have to modify the template in a line.
+If you use the plugin with Community Blog or Community Forum template set, or to be more precise, if you use the plugin with GlobalJavascript global template, You have to modify the template in a line.
 
 Find mtSignIn function, and modify the line below
 
@@ -37,3 +43,5 @@ Find mtSignIn function, and modify the line below
  var url = '<$mt:CGIPath$><$mt:CommunityScript>?__mode=cas_login&blog_id=<$mt:BlogID$>';
 
 ... so it will request "__mode=cas_login" instead of "__mode=login".
+
+If you use the plugin with either Classic Blog or Professional Website template set, you don't have to modify JavaScript template.
