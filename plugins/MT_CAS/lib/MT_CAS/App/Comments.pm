@@ -3,17 +3,15 @@ package MT_CAS::App::Comments;
 use strict;
 use warnings;
 
-use MT::Util qw( encode_url );
-use AuthCAS;
+use MT_CAS::Util;
 
 sub cas_login {
     my $app = shift;
     my $q   = $app->param;
 
-    my $cas = new AuthCAS(
-        casUrl => $app->config->AuthLoginURL,
+    my $login_url = MT_CAS::Util->get_server_login_url(
+        $app->config->AuthLoginURL, _service_url($app)
     );
-    my $login_url = $cas->getServerLoginURL( encode_url( _service_url($app) ) );
     return $app->redirect($login_url); 
 }
 

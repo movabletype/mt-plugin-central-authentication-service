@@ -3,8 +3,7 @@ package MT::Auth::CAS;
 use strict;
 use warnings;
 use base qw( MT::Auth::MT );
-use MT::Util qw( encode_url );
-use AuthCAS;
+use MT_CAS::Util;
 
 sub can_recover_password { 0 }
 sub is_profile_needed { 1 }
@@ -38,10 +37,10 @@ sub fetch_credentials {
             $ctx = { app => $app, session_ticket => $st, service_url => $service_url };
         }
         else {
-            my $cas = new AuthCAS(
-                casUrl => $app->config->AuthLoginURL,
+            my $login_url = MT_CAS::Util->get_server_login_url(
+                $app->config->AuthLoginURL,
+                $service_url
             );
-            my $login_url = $cas->getServerLoginURL( encode_url( $service_url ) );
             $app->redirect($login_url); 
             return undef; 
         }
@@ -63,13 +62,17 @@ sub validate_credentials {
         return MT::Auth::REDIRECT_NEEDED() unless $st;
     }
     if ( $st ) {
-        my $cas = new AuthCAS(
-            casUrl => $app->config->AuthLoginURL,
-        );
         my $service_url = _service_url( $app );
-        my $user = $cas->validateST( encode_url($service_url), $st);
+        my $user = MT_CAS::Util->validate_st(
+            $app->config->AuthLoginURL,
+            $service_url,
+            $st
+        );
         unless ( $user ) {
-            my $login_url = $cas->getServerLoginURL( encode_url( $service_url ) );
+            my $login_url = MT_CAS::Util->get_server_login_url(
+                $app->config->AuthLoginURL,
+                $service_url
+            );
             $app->redirect($login_url); 
             return MT::Auth::REDIRECT_NEEDED();
         }
@@ -109,10 +112,10 @@ sub invalidate_credentials {
     my $result = $class->SUPER::invalidate_credentials(@_); 
     # FIXME: handle_sign_in should not be the only mode
     return $result if ( 'handle_sign_in' eq $app->mode ) && $app->param('logout');
-    my $cas = new AuthCAS(
-        casUrl => $app->config->AuthLoginURL,
+    my $login_url = MT_CAS::Util->get_server_logout_url(
+        $app->config->AuthLoginURL,
+        $service_url
     );
-    my $login_url = $cas->getServerLogoutURL( encode_url( $service_url ) );
     $app->redirect($login_url);
     return undef;
 } 
