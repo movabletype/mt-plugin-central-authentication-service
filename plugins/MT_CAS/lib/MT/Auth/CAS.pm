@@ -5,6 +5,7 @@ use warnings;
 use base qw( MT::Auth::MT );
 use MT_CAS::Util;
 
+sub SURL_COOKIE_NAME { 'SourceURL' }
 sub can_recover_password { 0 }
 sub is_profile_needed { 1 }
 sub password_exists { 0 }
@@ -41,6 +42,11 @@ sub fetch_credentials {
                 $app->config->AuthLoginURL,
                 $service_url
             );
+            $app->bake_cookie(
+                -name  => SURL_COOKIE_NAME(),
+                -value => $service_url,
+                -path  => '/',
+            );
             $app->redirect($login_url); 
             return undef; 
         }
@@ -72,6 +78,11 @@ sub validate_credentials {
             my $login_url = MT_CAS::Util->get_server_login_url(
                 $app->config->AuthLoginURL,
                 $service_url
+            );
+            $app->bake_cookie(
+                -name  => SURL_COOKIE_NAME(),
+                -value => $service_url,
+                -path  => '/',
             );
             $app->redirect($login_url); 
             return MT::Auth::REDIRECT_NEEDED();
@@ -115,6 +126,11 @@ sub invalidate_credentials {
     my $login_url = MT_CAS::Util->get_server_logout_url(
         $app->config->AuthLoginURL,
         $service_url
+    );
+    $app->bake_cookie(
+        -name  => SURL_COOKIE_NAME(),
+        -value => $service_url,
+        -path  => '/',
     );
     $app->redirect($login_url);
     return undef;
