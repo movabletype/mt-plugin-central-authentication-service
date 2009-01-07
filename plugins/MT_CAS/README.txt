@@ -8,6 +8,11 @@ You need to specify the following three configuration directives in your mt-conf
 ; AuthLogoutURL
 : The URL where a user can logout from CAS.  DO include the "/logout" part.  For example, it should be like http://localhost:8080/cas/logout for the default installation of CAS server.
 
+Additionally, if your network does not allow outbound HTTP request from inside Movable Type application, you will be required to add MT_CAS_ValidationURL configuration directive.
+
+; MT_CAS_ValidationURL
+: The URL of the server which offers validation service (usually the same server you specify to AuthLoginURL).  Do NOT include "/serviceValidate" part.  For example it should read like http://localhost:8080 (no trailing slash).  Default value is undefined.  If not specified, AuthLoginURL will be used to validate session ticket.
+
 == Example ==
  CGIPath http://sixapart.jp/mt/
   
@@ -19,10 +24,12 @@ You need to specify the following three configuration directives in your mt-conf
  AuthenticationModule CAS
  AuthLoginURL http://localhost:8080/cas
  AuthLogoutURL http://localhost:8080/cas/logout
+ MT_CAS_ValidationURL http://server_name_inside_firewall:8080
  
  # Or if you use SSL
  #AuthLoginURL https://localhost:8443/cas
  #AuthLogoutURL https://localhost:8443/cas/logout
+ #MT_CAS_ValidationURL https://server_name_inside_firewall:8443
 
 = Editing JavaScript Template =
 The consumer side of the login process works as below.  In order for the browser to navigate to the correct address, users may need to edit JavaScript (or GlobalJavaScript, depending on what template sets they use) template to specify the login URL of MT used in the step 2.
