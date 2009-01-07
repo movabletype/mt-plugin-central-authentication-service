@@ -69,8 +69,10 @@ sub validate_credentials {
     }
     if ( $st ) {
         my $service_url = _service_url( $app );
+        my $validation_url = $app->config->MT_CAS_ValidationURL;
+        $validation_url ||= $app->config->AuthLoginURL;
         my $user = MT_CAS::Util->validate_st(
-            $app->config->AuthLoginURL,
+            $validation_url,
             $service_url,
             $st
         );

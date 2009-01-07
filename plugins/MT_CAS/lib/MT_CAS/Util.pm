@@ -28,7 +28,10 @@ sub validate_st {
 
     my $ua = MT->new_ua;
     my $resp = $ua->get($validate_url);
-    return $class->error( $resp->status_line ) unless $resp->is_success();
+    die $plugin->translate(
+      'HTTP(S) request to the validation service failed: [_1]',
+      $resp->status_line )
+        unless $resp->is_success();
 
     require XML::Simple;
     my $xs = XML::Simple->new();
