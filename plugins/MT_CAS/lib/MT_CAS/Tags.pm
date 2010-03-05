@@ -4,14 +4,21 @@ use strict;
 use warnings;
 
 sub _hdlr_sign_in_link {
-    my ($ctx, $args) = @_;    
+    my ($ctx, $args) = @_;
     my $cfg = $ctx->{config};
     my $blog = $ctx->stash('blog');
     my $path = $ctx->_hdlr_cgi_path();
     $path .= '/' unless $path =~ m!/$!;
+
     my $comment_script = $cfg->CommentScript;
     my $static_arg = $args->{static} ? "&static=" . $args->{static} : '';
     my $e = $ctx->stash('entry');
+
+    my $community_script = $cfg->CommunityScript;
+    # return "$path$community_script?__mode=cas_login$static_arg" .
+    #     ($blog ? '&blog_id=' . $blog->id : '') .
+    #     ($e ? '&entry_id=' . $e->id : '');
+
     return "$path$comment_script?__mode=cas_login$static_arg" .
         ($blog ? '&blog_id=' . $blog->id : '') .
         ($e ? '&entry_id=' . $e->id : '');

@@ -21,17 +21,18 @@ sub delegate_auth {
 sub sanity_check {
     my $class = shift;
     my ($app) = @_;
-    $class->SUPER::sanity_check(@_);
+    # $class->SUPER::sanity_check(@_);
+    return 0;
 }
 
-sub fetch_credentials { 
-    my $class = shift; 
-    my ( $ctx ) = @_; 
-    my $app = $ctx->{app} || MT->instance(); 
+sub fetch_credentials {
+    my $class = shift;
+    my ( $ctx ) = @_;
+    my $app = $ctx->{app} || MT->instance();
     my $service_url = $ctx->{service_url} || _service_url( $app );
 
-    $ctx = $class->session_credentials(@_); 
-    if (!defined $ctx) { 
+    $ctx = $class->session_credentials(@_);
+    if (!defined $ctx) {
         # FIXME: session_js should not be the only mode
         return undef if 'session_js' eq $app->mode;
         if ( my $st = $app->param('ticket') ) {
@@ -47,12 +48,12 @@ sub fetch_credentials {
                 -value => $service_url,
                 -path  => '/',
             );
-            $app->redirect($login_url); 
-            return undef; 
+            $app->redirect($login_url);
+            return undef;
         }
-    } 
+    }
     $ctx;
-} 
+}
 
 sub validate_credentials {
     my $class = shift;
@@ -67,6 +68,7 @@ sub validate_credentials {
         $st = $q->param('ticket');
         return MT::Auth::REDIRECT_NEEDED() unless $st;
     }
+
     if ( $st ) {
         my $service_url = _service_url( $app );
         my $validation_url = $app->config->MT_CAS_ValidationURL;
@@ -86,7 +88,7 @@ sub validate_credentials {
                 -value => $service_url,
                 -path  => '/',
             );
-            $app->redirect($login_url); 
+            $app->redirect($login_url);
             return MT::Auth::REDIRECT_NEEDED();
         }
         $ctx->{username} = $user;
@@ -97,6 +99,7 @@ sub validate_credentials {
     # load author from db
     my $author_class = $app->model('author');
     my $author = $author_class->load({ name => $ctx->{username}, type => $author_class->AUTHOR(), auth_type => [ 'MT', $app->config->AuthenticationModule ] });
+
     if ($author) {
         # author status validation
         if ($author->is_active) {
@@ -117,26 +120,40 @@ sub validate_credentials {
     return $result;
 }
 
-sub invalidate_credentials { 
-    my $class = shift; 
-    my ( $ctx ) = @_; 
-    my $app = $ctx->{app} || MT->instance(); 
-    my $service_url = $ctx->{service_url} || _service_url( $app );
-    my $result = $class->SUPER::invalidate_credentials(@_); 
+sub invalidate_credentials {
+    my $class = shift;
+    my ( $ctx ) = @_;
+    my $app = $ctx->{app} || MT->instance();
+    my $result = $class->SUPER::invalidate_credentials(@_);
+
     # FIXME: handle_sign_in should not be the only mode
     return $result if ( 'handle_sign_in' eq $app->mode ) && $app->param('logout');
-    my $login_url = MT_CAS::Util->get_server_logout_url(
-        $app->config->AuthLoginURL,
-        $service_url
-    );
-    $app->bake_cookie(
-        -name  => SURL_COOKIE_NAME(),
-        -value => $service_url,
-        -path  => '/',
-    );
-    $app->redirect($login_url);
+
+    # my $service_url = $ctx->{service_url} || _service_url( $app );
+    # my $logout_url = MT_CAS::Util->get_server_logout_url(
+    #     $app->config->AuthLoginURL,
+    #     $service_url
+    # );
+    # $app->bake_cookie(
+    #     -name  => SURL_COOKIE_NAME(),
+    #     -value => $service_url,
+    #     -path  => '/',
+    # );
+    #
+    #     my $ua = MT->new_ua( { timeout => 10 } );
+    #     return $app->redirect($logout_url) unless $ua;
+    #
+    #     my $req = new HTTP::Request( GET => $logout_url );
+    #     my $resp = $ua->request($req);
+    #     my $result = $resp->is_success ? $resp->content : $resp->status_line;
+    #
+    # use MT::Log;
+    # my $log = MT::Log->new;
+    # $log->message("Logout $logout_url (".$resp->is_success." ? ".$resp->content." : ".$resp->status_line.")");
+    # $log->save;
+
     return undef;
-} 
+}
 
 sub new_user {
     my $class = shift;

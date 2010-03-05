@@ -14,7 +14,9 @@ sub get_server_login_url {
 sub get_server_logout_url {
     my $class = shift;
     my ( $cas_url, $service_url ) = @_;
-    return $cas_url . '/logout' . '?url=' . encode_url( $service_url );
+    return $cas_url . '/logout' . '?service=' . encode_url( $service_url );
+    # Swap above line with below based on your specific CAS params
+    # return $cas_url . '/logout' . '?url=' . encode_url( $service_url );
 }
 
 sub validate_st {
@@ -37,6 +39,7 @@ sub validate_st {
     my $xs = XML::Simple->new();
     my $xml = $xs->XMLin( $resp->content, ForceArray => 1 );
 
+    # response keys $resp->{_protocol}. " :: ".$resp->{_content} ." :: ".$resp->{_headers} ." :: ".$resp->{_msg};
     if ( defined $xml->{'cas:authenticationFailure'} ) {
         return $class->error( $plugin->translate(
             "Failed to validate Service Ticket [_1]: [_2]",
@@ -45,7 +48,7 @@ sub validate_st {
         ) );
     }
 
-    if ( my $user = 
+    if ( my $user =
       $xml->{'cas:authenticationSuccess'}[0]{'cas:user'}[0] )
     {
         return $user;

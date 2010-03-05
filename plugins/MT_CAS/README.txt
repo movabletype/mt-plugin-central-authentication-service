@@ -1,12 +1,16 @@
 = Configuration =
 You need to specify the following three configuration directives in your mt-config.cgi.
 
+: ExternalUserManagement
+: must be set to 1
 ; AuthenticationModule
 : Must be "CAS"
 ; AuthLoginURL
 : The URL where CAS is on.  Do NOT include the "/login" part.  For example, it should be like http://localhost:8080/cas for the default installation of CAS server.
 ; AuthLogoutURL
 : The URL where a user can logout from CAS.  DO include the "/logout" part.  For example, it should be like http://localhost:8080/cas/logout for the default installation of CAS server.
+: SingleCommunity 1
+: This last setting is needed to SSO login across multiple blogs
 
 Additionally, if your network does not allow outbound HTTP request from inside Movable Type application, you will be required to add MT_CAS_ValidationURL configuration directive.
 
