@@ -7,7 +7,7 @@ mt-config.cgi.
 
     ExternalUserManagement
 
-must be set to 1
+Must be set to 1
 
     AuthenticationModule
 
@@ -76,7 +76,7 @@ If you use the plugin with Community Blog or Community Forum template set, or
 to be more precise, if you use the plugin with GlobalJavascript global
 template, You have to modify the template in a line.
 
-Find `mtSignIn` function, and modify the line below
+Find `mtSignIn` function, and modify the line below:
 
     var url = '<$mt:CGIPath$><$mt:CommunityScript>?__mode=login&blog_id=<$mt:BlogID$>';
 
