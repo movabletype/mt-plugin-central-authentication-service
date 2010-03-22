@@ -3,7 +3,7 @@
 ## Configuration
 
 You need to specify the following three configuration directives in your
-mt-config.cgi.
+`mt-config.cgi`.
 
     ExternalUserManagement
 
@@ -15,15 +15,15 @@ Must be "CAS"
 
     AuthLoginURL
 
-The URL where CAS is located. **Do not** include the "/login" part. For example,
-it should be like `http://localhost:8080/cas` for the default installation of
-CAS server.
+The URL where CAS is located. **Do not** include the "/login" part. For
+example, it should be like `http://localhost:8080/cas` for the default
+installation of CAS server.
 
     AuthLogoutURL
 
-The URL where a user can logout from CAS. **Do** include the "/logout" part. For
-example, it should be like `http://localhost:8080/cas/logout` for the default
-installation of CAS server.
+The URL where a user can logout from CAS. **Do** include the "/logout" part.
+For example, it should be like `http://localhost:8080/cas/logout` for the
+default installation of CAS server.
 
     SingleCommunity 1
 
@@ -36,10 +36,10 @@ Movable Type application, you will be required to add the
     MT_CAS_ValidationURL
 
 The URL of the server which offers validation service (usually the same server
-you specify to AuthLoginURL). Do NOT include "/serviceValidate" part. For
-example it should read like `http://localhost:8080` (no trailing slash). Default
-value is undefined. If not specified, `AuthLoginURL` will be used to validate
-session ticket.
+you specify to `AuthLoginURL`). **Do not** include "/serviceValidate" part.
+For example it should read like `http://localhost:8080` (no trailing slash).
+Default value is undefined. If not specified, `AuthLoginURL` will be used to
+validate session ticket.
 
 ## Example
 
@@ -65,7 +65,7 @@ session ticket.
 The consumer side of the login process works as below. In order for the
 browser to navigate to the correct address, users may need to edit JavaScript
 (or GlobalJavaScript, depending on what template sets they use) template to
-specify the login URL of MT used in the step 2.
+specify the login URL of MT used in second step.
 
 * User clicks "Sign In" link on the blog entry to comment.
 * MT accepts the request first, and redirect to CAS login URL.
