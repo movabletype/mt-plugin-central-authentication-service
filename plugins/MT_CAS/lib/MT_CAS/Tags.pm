@@ -18,7 +18,7 @@ sub _hdlr_sign_in_link {
     my ($ctx, $args) = @_;
     my $cfg = $ctx->{config};
     my $blog = $ctx->stash('blog');
-    my $path = $ctx->_hdlr_cgi_path();
+    my $path = $ctx->invoke_handler('cgipath');
     $path .= '/' unless $path =~ m!/$!;
 
     my $comment_script = $cfg->CommentScript;
@@ -38,7 +38,7 @@ sub _hdlr_sign_in_link {
 sub _hdlr_sign_out_link {
     my ($ctx, $args) = @_;
     my $cfg = $ctx->{config};
-    my $path = $ctx->_hdlr_cgi_path();
+    my $path = $ctx->invoke_handler('cgipath');
     $path .= '/' unless $path =~ m!/$!;
     my $comment_script = $cfg->CommentScript;
     my $static_arg;
